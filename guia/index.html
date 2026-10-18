@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<!-- Guia INEMA do espelho inematds/shaders (original: shader-effects-inc/shaders, MIT).
+     PT e a fonte; en/ e es/ sao copias traduzidas. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shaders — efeitos WebGPU para sites</title>
+<meta name="description" content="Guia INEMA do Shaders: mais de 200 efeitos visuais WebGPU grátis (MIT) como componentes para React, Vue, Svelte, Solid e JavaScript. Demo ao vivo, passo a passo, o que é grátis e o que é Pro, e cuidados.">
+<link rel="alternate" hreflang="pt-BR" href="https://inematds.github.io/shaders/guia/">
+<link rel="alternate" hreflang="en" href="https://inematds.github.io/shaders/guia/en/">
+<link rel="alternate" hreflang="es" href="https://inematds.github.io/shaders/guia/es/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730;
+    --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; --amb2:#f0c070; --sky:#38bdf8; --pro:#cbd5e1;
+    color-scheme:dark;
+  }
+  body.light{
+    --bg:#f6f7f9; --bg2:#eceef2; --card:#ffffff; --line:#e1e3ea;
+    --txt:#1a1a22; --mut:#5b5b68; --amb:#b9791d; --amb2:#a16207; --sky:#0369a1; --pro:#b45309;
+    color-scheme:light;
+  }
+  body.light .hero .glow{opacity:.5}
+  body.light pre{background:#0e0e14;color:#d6d6e0}
+  body.light pre .c{color:#8a8a98}
+  body.light nav{background:rgba(246,247,249,.85)}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Sora,sans-serif;line-height:1.15;margin:0}
+  a{color:var(--amb);text-decoration:none}
+  code,pre{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .mut{color:var(--mut)} .amb{color:var(--amb)}
+  .chip{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(12px);background:rgba(12,12,16,.78);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+  nav .brand{display:flex;align-items:center;gap:8px;font-family:Sora;font-weight:800;letter-spacing:-.02em;color:var(--amb)}
+  nav .brand .emoji{font-size:1.25rem}
+  nav .sep{color:var(--mut);opacity:.45}
+  nav .inema{color:var(--sky);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .inema:hover{filter:brightness(1.15)}
+  nav .pro{color:var(--pro);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .pro:hover{filter:brightness(1.15)}
+  nav .clubpro{display:inline-flex;align-items:center;gap:6px}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:.92rem}
+  nav .links a.sec{color:var(--mut)} nav .links a.sec:hover{color:var(--txt)}
+  .lang{display:inline-flex;gap:2px;font-family:Sora;font-size:.78rem}
+  .lang a{color:var(--mut);padding:.2em .45em;border-radius:6px} .lang a.on{color:var(--amb);background:rgba(226,162,59,.12)}
+  .tgl{background:var(--bg2);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}
+  .tgl:hover{border-color:var(--amb)}
+  .btn{display:inline-block;background:var(--amb);color:#1a1206;font-weight:600;padding:.6em 1.05em;border-radius:10px;font-family:Sora}
+  .btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+  @media(max-width:860px){nav .links a.sec{display:none}}
+  @media(max-width:520px){nav .wrap{gap:8px;padding:8px 14px;height:auto;flex-wrap:wrap} nav .links{gap:8px;margin-left:0;width:100%;justify-content:space-between} nav .btn{padding:.45em .7em;font-size:.82rem} .tgl{width:34px;height:34px}}
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero .glow{position:absolute;inset:-40% -20% auto auto;width:70%;height:600px;background:radial-gradient(closest-side,rgba(226,162,59,.22),transparent 70%);pointer-events:none}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:74px 22px}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.025em}
+  .hero p.lead{font-size:1.18rem;color:var(--mut);margin:1.1em 0 1.6em;max-width:34ch}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero figure{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000}
+  .hero figure img{width:100%;display:block}
+  .resumo{padding:38px 0 34px;border-bottom:1px solid var(--line)}
+  .resumo p{font-size:1.12rem;line-height:1.7;max-width:74ch;margin:.55em 0 0}
+  @media(max-width:780px){.hero .wrap{grid-template-columns:1fr;padding:48px 22px}}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.02em}
+  section .sub{color:var(--mut);margin:.6em 0 2em;max-width:62ch}
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:540px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:1.05rem;margin-bottom:.4em}
+  .card p{color:var(--mut);font-size:.92rem;margin:0}
+  .card ul{color:var(--mut);font-size:.92rem;margin:.4em 0 0;padding-left:1.1em}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .flow span{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:.45em .9em;font-size:.85rem;font-family:Sora;font-weight:600}
+  .flow .arr{color:var(--amb);border:none;background:none;padding:0 .1em}
+  pre{background:#0a0a0e;border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;font-size:.86rem;line-height:1.6;color:#d6d6e0}
+  pre .c{color:#6f6f7c} pre .k{color:var(--amb2)} pre .s{color:#9ece6a}
+  .step{display:grid;grid-template-columns:46px minmax(0,1fr);gap:16px;margin-bottom:26px}
+  .step>div,.card{min-width:0}
+  p code,li code,td code{overflow-wrap:anywhere}
+  .step .b{width:46px;height:46px;border-radius:12px;background:var(--amb);color:#1a1206;font-family:Sora;font-weight:800;font-size:1.25rem;display:flex;align-items:center;justify-content:center}
+  .step h3{font-size:1.12rem;margin-bottom:.3em}
+  .step p{color:var(--mut);margin:.2em 0 .7em}
+  .phase{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border:none}
+  .phase .tag{flex:0 0 92px;font-family:Sora;font-weight:800;color:var(--amb)}
+  .phase .d strong{display:block;margin-bottom:.2em}
+  .phase .d span{color:var(--mut);font-size:.92rem}
+  footer{padding:46px 0;text-align:center;color:var(--mut);font-size:.9rem}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.3em .8em;font-size:.78rem;color:var(--mut);margin:0 4px}
+  /* demo ao vivo */
+  .stage{position:relative;height:380px;border-radius:16px;overflow:hidden;border:1px solid var(--line);
+    background:radial-gradient(120% 90% at 20% 20%,rgba(226,162,59,.55),transparent 55%),radial-gradient(90% 80% at 85% 80%,rgba(240,192,112,.35),transparent 60%),#0c0c10}
+  .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .stage .tag{position:absolute;left:16px;bottom:14px;z-index:2;font:600 .78rem Sora;color:#f3f3f6;background:rgba(0,0,0,.45);padding:.35em .7em;border-radius:8px}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+  .presets button{font:600 .85rem Sora;background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:999px;padding:.5em 1em;cursor:pointer}
+  .presets button[aria-pressed="true"]{border-color:var(--amb);color:var(--amb)}
+  .presets button:focus-visible{outline:2px solid var(--amb);outline-offset:2px}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:Sora;font-size:.82rem;color:var(--mut);font-weight:600}
+  .tbl{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .nota{border-left:3px solid var(--amb);background:var(--card);padding:14px 16px;border-radius:0 12px 12px 0;color:var(--mut);font-size:.92rem;margin-top:18px}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="brand" href="#top"><span class="emoji">✨</span> Shaders</a>
+  <span class="sep">|</span>
+  <span class="clubpro">
+    <a class="inema" href="https://inema.club" target="_blank" rel="noopener">INEMA.CLUB</a>
+    <span class="sep">-</span>
+    <a class="pro" href="https://inema.pro" target="_blank" rel="noopener">PRO</a>
+  </span>
+  <div class="links">
+    <a class="sec" href="#demo">Demo</a>
+    <a class="sec" href="#oque">O que é</a>
+    <a class="sec" href="#guia">Guia de uso</a>
+    <a class="sec" href="#inema">No INEMA</a>
+    <a class="sec" href="#cuidados">Cuidados</a>
+    <span class="lang"><a class="on" href="./">PT</a><a href="en/">EN</a><a href="es/">ES</a></span>
+    <button class="tgl" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">🌙</button>
+    <a class="btn" href="https://github.com/inematds/shaders" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div>
+      <span class="chip">Efeitos WebGPU · grátis · MIT</span>
+      <h1>Seu site com efeitos de <span class="amb">cinema</span></h1>
+      <p class="lead">Mais de 200 efeitos visuais (gradientes vivos, vidro, metal, luz, partículas) que você coloca na página como um componente.</p>
+      <div class="cta">
+        <a class="btn" href="#guia">Começar o guia</a>
+        <a class="btn ghost" href="#demo">Ver a demo ao vivo</a>
+      </div>
+    </div>
+    <figure><img src="assets/banner.jpg" alt="Banner: Sites com Shaders, 200+ efeitos WebGPU grátis para o seu site"></figure>
+  </div>
+</header>
+
+<section id="resumo" class="resumo"><div class="wrap">
+  <span class="chip">Em resumo</span>
+  <p>Shaders é uma biblioteca gratuita e de código aberto (licença MIT) com mais de 200 efeitos visuais para páginas web. Ela serve para quem faz sites, landing pages e apps e quer um fundo animado, um brilho ou uma distorção sem escrever código de placa de vídeo. Cada efeito é um componente: você empilha camadas e a placa de vídeo do visitante desenha tudo em tempo real, pela tecnologia WebGPU. Para usar, basta instalar o pacote <code>shaders</code> (React, Vue, Svelte, Solid ou JavaScript puro) e abrir num navegador com WebGPU.</p>
+</div></section>
+
+<section id="demo"><div class="wrap">
+  <span class="chip">Demo ao vivo</span>
+  <h2>Isto aqui é a biblioteca rodando</h2>
+  <p class="sub">Três combinações feitas só com componentes grátis. Se o seu navegador não tiver WebGPU, você vê o fundo estático, que é exatamente o que o seu site deve mostrar nesse caso.</p>
+  <div class="stage" id="stage"><canvas id="cv" aria-label="Demonstração de efeito Shaders"></canvas><span class="tag" id="stageTag">Carregando…</span></div>
+  <div class="presets" role="group" aria-label="Escolha o efeito">
+    <button type="button" data-p="malha" aria-pressed="true">Malha âmbar</button>
+    <button type="button" data-p="aurora" aria-pressed="false">Aurora</button>
+    <button type="button" data-p="ondas" aria-pressed="false">Ondas no cursor</button>
+  </div>
+  <p class="nota">A demo carrega o pacote oficial <code>shaders@4.0.4</code> pelo jsDelivr só quando você chega nesta seção e só se o navegador tiver WebGPU (são cerca de 2,5 MB). A telemetria está desligada (<code>disableTelemetry: true</code>) e a animação pausa quando sai da tela.</p>
+</div></section>
+
+<section id="oque"><div class="wrap">
+  <span class="chip">O que é</span>
+  <h2>Efeitos de GPU que se montam como camadas</h2>
+  <p class="sub">É um pacote npm (<code>shaders</code>, versão 4.0.4 em 18/10/2026) mantido pela Shader Effects Inc. Este repositório <code>inematds/shaders</code> é um espelho com este guia; o projeto original é <a href="https://github.com/shader-effects-inc/shaders" target="_blank" rel="noopener">shader-effects-inc/shaders</a>.</p>
+  <figure style="margin:0 0 26px;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000"><img src="assets/banner-grade.jpg" alt="Banner: componentes, editor visual, CLI, MCP para agentes, shader próprio, grátis x Pro" loading="lazy" style="width:100%;display:block"></figure>
+  <div class="grid g3">
+    <div class="card"><h3>🧩 200+ componentes</h3><p>Gradientes, ruídos, vidro, metal, luz, distorções, transições, desfoques e efeitos de cursor. Um <code>&lt;Shader&gt;</code> desenha o canvas e cada filho é uma camada.</p></div>
+    <div class="card"><h3>🖌️ Editor visual</h3><p>No site shaders.com você monta o efeito numa tela infinita, ajusta cada valor e exporta o código pronto para o seu framework (grátis, com conta).</p></div>
+    <div class="card"><h3>🤖 Feito para agentes</h3><p>Traz uma skill para o agente de código, um servidor MCP e o <code>llms.txt</code> com todos os componentes e props. O Claude Code entende a biblioteca sozinho.</p></div>
+  </div>
+  <h3 style="margin:34px 0 12px;font-size:1.15rem">Grátis x Pro</h3>
+  <div class="tbl"><table>
+    <tr><th>Grátis (MIT)</th><th>Pro (pago, no shaders.com)</th></tr>
+    <tr><td>Motor, os 200+ componentes e as versões React, Vue, Svelte, Solid e JS</td><td>Mais de 1.000 presets prontos, em coleções</td></tr>
+    <tr><td>Editor visual e exportar código (precisa de conta)</td><td>55+ seções de site completas</td></tr>
+    <tr><td>CLI, skill, MCP e busca de presets</td><td>Render de vídeo e imagem em HD sem marca d'água</td></tr>
+    <tr><td>Escrever o seu próprio efeito com <code>defineShader</code></td><td>Plugin do Framer, histórico de versões, presets Pro pela CLI/MCP</td></tr>
+  </table></div>
+</div></section>
+
+<section id="fluxo"><div class="wrap">
+  <span class="chip">Como funciona</span>
+  <h2>Uma tela, várias camadas, a GPU mistura</h2>
+  <p class="sub">A ordem importa: a primeira camada fica no fundo e a última por cima. Efeitos que transformam imagem (desfoque, grão, vinheta, ondas) agem sobre o que veio antes deles.</p>
+  <div class="flow">
+    <span>&lt;Shader&gt; cria o canvas</span><span class="arr">→</span>
+    <span>Gerador (ex.: MeshGradient)</span><span class="arr">→</span>
+    <span>Efeito (ex.: FilmGrain)</span><span class="arr">→</span>
+    <span>Interação (ex.: CursorRipples)</span><span class="arr">→</span>
+    <span>GPU desenha a cada quadro</span>
+  </div>
+</div></section>
+
+<section id="pre"><div class="wrap">
+  <span class="chip">Pré-requisitos</span>
+  <h2>O que você precisa</h2>
+  <p class="sub">Nada de placa de vídeo especial: quem desenha é o navegador de quem visita o site.</p>
+  <div class="grid g3">
+    <div class="card"><h3>Node e npm</h3><p>Para instalar o pacote num projeto React, Vue, Svelte ou Solid.</p><pre><span class="c"># conferir</span>
+<span class="k">node</span> -v && <span class="k">npm</span> -v</pre></div>
+    <div class="card"><h3>Navegador com WebGPU</h3><p>Chrome e Edge recentes têm WebGPU. Nos outros, o suporte varia por versão e sistema: sempre prepare um fundo estático.</p><pre><span class="c">// no console do navegador</span>
+<span class="k">!!</span>navigator.gpu</pre></div>
+    <div class="card"><h3>Conta no shaders.com (opcional)</h3><p>Só para o editor visual, a CLI conectada e o MCP. O pacote npm funciona sem conta.</p><pre><span class="c"># sem conta, só o pacote</span>
+<span class="k">npm</span> install shaders</pre></div>
+  </div>
+</div></section>
+
+<section id="guia"><div class="wrap">
+  <span class="chip">Guia de uso · passo a passo</span>
+  <h2>Do zero ao primeiro efeito</h2>
+  <p class="sub">Comandos e exemplos tirados do README e da skill oficial do projeto.</p>
+
+  <div class="step"><div class="b">1</div><div>
+    <h3>Instale o pacote</h3>
+    <p>Um pacote só serve para todos os frameworks.</p>
+<pre><span class="k">npm</span> install shaders</pre>
+  </div></div>
+
+  <div class="step"><div class="b">2</div><div>
+    <h3>Coloque o primeiro efeito (React)</h3>
+    <p>O tamanho vem do CSS do <code>&lt;Shader&gt;</code>. Os filhos são as camadas. Em Vue, Svelte e Solid é igual, trocando o import para <code>shaders/vue</code>, <code>shaders/svelte</code> ou <code>shaders/solid</code>.</p>
+<pre><span class="k">import</span> { Shader, LinearGradient, CursorTrail } <span class="k">from</span> <span class="s">'shaders/react'</span>
+
+&lt;Shader className=<span class="s">"w-full h-64"</span>&gt;
+  &lt;LinearGradient colorA=<span class="s">"#0c0c10"</span> colorB=<span class="s">"#E2A23B"</span> /&gt;
+  &lt;CursorTrail /&gt;
+&lt;/Shader&gt;</pre>
+  </div></div>
+
+  <div class="step"><div class="b">3</div><div>
+    <h3>Página HTML sem build (JavaScript puro)</h3>
+    <p>Para guias e páginas de um arquivo só: importe o bundle oficial pelo CDN e passe as camadas como lista. É assim que a demo desta página funciona.</p>
+<pre>&lt;canvas id=<span class="s">"fx"</span> style=<span class="s">"width:100%;height:360px"</span>&gt;&lt;/canvas&gt;
+&lt;script type=<span class="s">"module"</span>&gt;
+<span class="k">import</span> { createShader } <span class="k">from</span> <span class="s">'https://cdn.jsdelivr.net/npm/shaders@4.0.4/dist/js/bundle.js'</span>
+
+<span class="k">await</span> createShader(document.getElementById(<span class="s">'fx'</span>), {
+  components: [
+    { type: <span class="s">'MeshGradient'</span>, props: { stops: [
+      { color: <span class="s">'#0c0c10'</span>, position: 0 },
+      { color: <span class="s">'#E2A23B'</span>, position: 0.7 },
+      { color: <span class="s">'#f0c070'</span>, position: 1 },
+    ] } },
+    { type: <span class="s">'FilmGrain'</span> },
+  ],
+}, { disableTelemetry: <span class="k">true</span> })
+&lt;/script&gt;</pre>
+  </div></div>
+
+  <div class="step"><div class="b">4</div><div>
+    <h3>Prepare o plano B (sem WebGPU)</h3>
+    <p>Dê ao contêiner um fundo CSS parecido com o efeito e só carregue a biblioteca se o navegador suportar. Assim ninguém vê uma área vazia.</p>
+<pre>.hero-fx { background: radial-gradient(circle at 20% 20%, #E2A23B88, transparent 60%), #0c0c10; }
+
+<span class="k">if</span> (navigator.gpu) {
+  <span class="k">const</span> { createShader } = <span class="k">await</span> import(<span class="s">'https://cdn.jsdelivr.net/npm/shaders@4.0.4/dist/js/bundle.js'</span>)
+  <span class="c">// ...createShader(...) como no passo 3</span>
+}</pre>
+  </div></div>
+
+  <div class="step"><div class="b">5</div><div>
+    <h3>Desligue a telemetria</h3>
+    <p>Por padrão, a biblioteca envia dados de desempenho para <code>shaders.com/api/telemetry</code> em cerca de 5% das visitas (ela respeita o "Do Not Track" do navegador). Para não enviar nada, use a opção abaixo.</p>
+<pre><span class="c">// JavaScript</span>
+createShader(canvas, preset, { disableTelemetry: <span class="k">true</span> })
+<span class="c">// React / Vue / Svelte / Solid</span>
+&lt;Shader disableTelemetry&gt; ... &lt;/Shader&gt;</pre>
+  </div></div>
+
+  <div class="step"><div class="b">6</div><div>
+    <h3>Ensine o seu agente de código</h3>
+    <p>A skill oficial ensina ao Claude Code (ou outro agente) os componentes, a regra das camadas e a CLI. A busca de presets por descrição é grátis e não pede login.</p>
+<pre><span class="k">npx</span> skills add shader-effects-inc/shaders   <span class="c"># instala a skill no agente</span>
+<span class="k">npx</span> shaders search <span class="s">"liquid chrome hero background"</span> --json   <span class="c"># busca presets</span>
+<span class="k">npx</span> shaders preview &lt;nome&gt;   <span class="c"># abre o preset rodando no shaders.com</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">7</div><div>
+    <h3>Conecte ao editor visual (opcional, com conta)</h3>
+    <p>Liga o seu projeto a uma conta do shaders.com: o que você desenha no editor vira arquivo de componente no código e fica sincronizado.</p>
+<pre><span class="k">npx</span> shaders connect   <span class="c"># liga o projeto à sua conta</span>
+<span class="k">npx</span> shaders install   <span class="c"># escolhe efeitos do projeto e grava os arquivos</span>
+<span class="k">npx</span> shaders update    <span class="c"># traz o que você mudou no editor</span>
+<span class="k">npx</span> shaders@latest install-mcp   <span class="c"># MCP para Claude Code, Cursor, Codex...</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">8</div><div>
+    <h3>Crie um efeito seu</h3>
+    <p>Um componente novo é um objeto com nome, props e o que desenhar em cada pixel (na linguagem WGSL). Depois você usa com <code>&lt;CustomShader&gt;</code>.</p>
+<pre><span class="k">import</span> { defineShader, wgsl, transformColor, transformPosition } <span class="k">from</span> <span class="s">'shaders/std'</span>
+
+<span class="k">export const</span> Halo = defineShader({
+  name: <span class="s">'Halo'</span>,
+  props: {
+    color: { default: <span class="s">'#E2A23B'</span>, transform: transformColor },
+    center: { default: { x: 0.5, y: 0.5 }, transform: transformPosition },
+    radius: { default: 0.6 },
+  },
+  paint: wgsl`
+    let d = length((uv - center) * vec2f(aspect, 1.0)) / radius;
+    return vec4f(color.rgb, 1.0 - smoothstep(0.8, 1.0, d));
+  `,
+})</pre>
+  </div></div>
+</div></section>
+
+<section id="inema"><div class="wrap">
+  <span class="chip">No INEMA</span>
+  <h2>Onde isso encaixa nos nossos projetos</h2>
+  <p class="sub">A biblioteca brilha em página de site. Em vídeo e em curso, vale ir com calma.</p>
+  <div class="grid g2">
+    <div class="card"><h3>✅ Bom encaixe</h3><ul>
+      <li><strong>Portal (Next.js / React):</strong> fundo animado na hero e nos banners, direto com <code>shaders/react</code>.</li>
+      <li><strong>Guias de projeto:</strong> um fundo discreto na hero via CDN, mantendo a página num arquivo só.</li>
+      <li><strong>Sites com movimento</strong> (site-movimento, filmarca, Motion Lab): efeitos de vidro, luz e cursor.</li>
+      <li><strong>Efeito da marca:</strong> um brilho âmbar próprio com <code>defineShader</code>, reaproveitado em tudo.</li>
+    </ul></div>
+    <div class="card"><h3>⚠️ Testar antes</h3><ul>
+      <li><strong>Render de vídeo (HyperFrames):</strong> o navegador sem tela que gera o MP4 pode não ter WebGPU, e render de GPU no servidor já se mostrou mais lento que o medido.</li>
+      <li><strong>Cursos para iniciantes:</strong> efeito pesado atrapalha a leitura e esquenta notebook fraco. Se usar, só na abertura.</li>
+      <li><strong>Celular:</strong> medir CPU/GPU e bateria antes de pôr em página longa.</li>
+    </ul></div>
+  </div>
+</div></section>
+
+<section id="cuidados"><div class="wrap">
+  <span class="chip">Cuidados</span>
+  <h2>Antes de pôr no ar</h2>
+  <p class="sub">Quatro pontos que conferimos no código e na documentação do projeto.</p>
+  <div class="phase"><div class="tag">Suporte</div><div class="d"><strong>Nem todo navegador tem WebGPU</strong><span>Sempre deixe um fundo estático no lugar (passo 4). Sem isso, a área fica vazia.</span></div></div>
+  <div class="phase"><div class="tag">Privacidade</div><div class="d"><strong>Telemetria ligada por padrão</strong><span>Cerca de 5% das visitas mandam dados de desempenho para o shaders.com. Use <code>disableTelemetry</code> (passo 5).</span></div></div>
+  <div class="phase"><div class="tag">Peso</div><div class="d"><strong>O bundle completo tem cerca de 2,5 MB</strong><span>Carregue só quando a seção aparecer na tela, ou use o pacote npm com o seu bundler, que leva só o que você importa.</span></div></div>
+  <div class="phase"><div class="tag">Conta</div><div class="d"><strong>Editor, CLI conectada e MCP falam com o shaders.com</strong><span>O pacote em si roda local. Os presets prontos e as seções de site são do plano Pro.</span></div></div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="pill">WebGPU</div><div class="pill">TypeScript</div><div class="pill">MIT</div>
+    <p style="margin-top:18px">Shaders © Shader Effects, Inc. · espelho com guia INEMA ·
+      <a href="https://github.com/shader-effects-inc/shaders">original</a> ·
+      <a href="https://github.com/inematds/shaders">inematds/shaders</a> ·
+      <a href="https://inema.club">INEMA.CLUB</a></p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var KEY='shaders-theme';
+    var b=document.body, t=document.getElementById('themeToggle');
+    try{ if(localStorage.getItem(KEY)==='light'){ b.classList.add('light'); t.textContent='☀️'; } }catch(e){}
+    t.addEventListener('click',function(){
+      var light=b.classList.toggle('light');
+      t.textContent=light?'☀️':'🌙';
+      try{ localStorage.setItem(KEY, light?'light':'dark'); }catch(e){}
+    });
+  })();
+</script>
+<script type="module">
+  // Demo: só carrega com WebGPU e quando a seção aparece; pausa fora da tela.
+  const TXT = { load:'Carregando…', none:'Sem WebGPU neste navegador: fundo estático', err:'Não deu para iniciar o WebGPU: fundo estático', still:'Movimento reduzido: efeito parado' };
+  const CDN = 'https://cdn.jsdelivr.net/npm/shaders@4.0.4/dist/js/bundle.js';
+  const PRESETS = {
+    malha:  [{ type:'MeshGradient', props:{ stops:[{color:'#0c0c10',position:0},{color:'#3a2710',position:0.4},{color:'#E2A23B',position:0.75},{color:'#f0c070',position:1}] } }, { type:'FilmGrain' }, { type:'Vignette' }],
+    aurora: [{ type:'Aurora' }, { type:'FilmGrain' }],
+    ondas:  [{ type:'MeshGradient', props:{ stops:[{color:'#0c0c10',position:0},{color:'#14141b',position:0.45},{color:'#7a5418',position:0.8},{color:'#f0c070',position:1}] } }, { type:'CursorRipples' }],
+  };
+  const NAMES = { malha:'MeshGradient + FilmGrain + Vignette', aurora:'Aurora + FilmGrain', ondas:'MeshGradient + CursorRipples (passe o mouse)' };
+  const stage = document.getElementById('stage'), cv = document.getElementById('cv'), tag = document.getElementById('stageTag');
+  const btns = [...document.querySelectorAll('.presets button')];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lib = null, inst = null, visible = false, current = 'malha';
+
+  async function mount(name){
+    current = name;
+    btns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === name)));
+    if (!lib) return;
+    try { inst && inst.destroy(); } catch(e){}
+    try {
+      inst = await lib.createShader(cv, { components: PRESETS[name] }, { disableTelemetry:true, onError:() => { tag.textContent = TXT.err; } });
+      const why = inst.getFailureReason && inst.getFailureReason();
+      if (why) { tag.textContent = TXT.err; return; }
+      tag.textContent = NAMES[name];
+      if (reduce) { setTimeout(() => { try{ inst.pause(); }catch(e){} }, 400); tag.textContent += ' · ' + TXT.still; }
+      else if (!visible) { try{ inst.pause(); }catch(e){} }
+    } catch(e) { tag.textContent = TXT.err; }
+  }
+  btns.forEach(b => b.addEventListener('click', () => mount(b.dataset.p)));
+
+  if (!('gpu' in navigator)) { tag.textContent = TXT.none; btns.forEach(b => b.disabled = true); }
+  else {
+    tag.textContent = TXT.load;
+    new IntersectionObserver(async ([e]) => {
+      visible = e.isIntersecting;
+      if (visible && !lib) {
+        try { lib = await import(CDN); await mount(current); } catch(err) { tag.textContent = TXT.err; }
+      } else if (inst && !reduce) { try { visible ? inst.resume() : inst.pause(); } catch(err){} }
+    }, { rootMargin:'200px' }).observe(stage);
+  }
+</script>
+</body>
+</html>
