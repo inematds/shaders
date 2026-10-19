@@ -1,0 +1,218 @@
+[
+  {
+    "perfil": "desktop",
+    "versao": "sem",
+    "status": "A · sem efeito",
+    "fps": 60.2,
+    "cpu": 1.1,
+    "contraste": {
+      "titulo": {
+        "pior": 12.76208737750937,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 6.576028910943849,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/desktop-sem.jpg"
+  },
+  {
+    "perfil": "desktop",
+    "versao": "fundo",
+    "status": "B · efeito atrás do texto",
+    "fps": 60.1,
+    "cpu": 6.5,
+    "contraste": {
+      "titulo": {
+        "pior": 2.177267685037523,
+        "abaixo45_max": 0.5436827956989247
+      },
+      "paragrafo": {
+        "pior": 1.005445358225823,
+        "abaixo45_max": 1
+      }
+    },
+    "print": "prints/desktop-fundo.jpg"
+  },
+  {
+    "perfil": "desktop",
+    "versao": "botao",
+    "status": "C · efeito só no botão",
+    "fps": 60.1,
+    "cpu": 5.7,
+    "contraste": {
+      "titulo": {
+        "pior": 12.76208737750937,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 6.576028910943849,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/desktop-botao.jpg"
+  },
+  {
+    "perfil": "desktop",
+    "versao": "css",
+    "status": "D · brilho no botão só com CSS",
+    "fps": 60.1,
+    "cpu": 2.4,
+    "contraste": {
+      "titulo": {
+        "pior": 12.76208737750937,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 6.576028910943849,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/desktop-css.jpg"
+  },
+  {
+    "perfil": "fraco",
+    "versao": "sem",
+    "status": "A · sem efeito",
+    "fps": 60.3,
+    "cpu": 3.3,
+    "contraste": {
+      "titulo": {
+        "pior": 12.567898753622195,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 6.520910789480016,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/fraco-sem.jpg"
+  },
+  {
+    "perfil": "fraco",
+    "versao": "fundo",
+    "status": "B · efeito atrás do texto",
+    "fps": 60.2,
+    "cpu": 15.8,
+    "contraste": {
+      "titulo": {
+        "pior": 2.1871439457889372,
+        "abaixo45_max": 0.5406124815517604
+      },
+      "paragrafo": {
+        "pior": 1.0057477544483429,
+        "abaixo45_max": 1
+      }
+    },
+    "print": "prints/fraco-fundo.jpg"
+  },
+  {
+    "perfil": "fraco",
+    "versao": "botao",
+    "status": "C · efeito só no botão",
+    "fps": 60.1,
+    "cpu": 17.3,
+    "contraste": {
+      "titulo": {
+        "pior": 12.567898753622195,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 6.520910789480016,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/fraco-botao.jpg"
+  },
+  {
+    "perfil": "fraco",
+    "versao": "css",
+    "status": "D · brilho no botão só com CSS",
+    "fps": 60,
+    "cpu": 8.4,
+    "contraste": {
+      "titulo": {
+        "pior": 12.567898753622195,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 6.520910789480016,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/fraco-css.jpg"
+  },
+  {
+    "perfil": "celular",
+    "versao": "sem",
+    "status": "A · sem efeito",
+    "fps": 60.1,
+    "cpu": 3.1,
+    "contraste": {
+      "titulo": {
+        "pior": 11.553935523781535,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 5.68470584446488,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/celular-sem.jpg"
+  },
+  {
+    "perfil": "celular",
+    "versao": "fundo",
+    "status": "B · efeito atrás do texto",
+    "fps": 60.2,
+    "cpu": 20.1,
+    "contraste": {
+      "titulo": {
+        "pior": 4.971219451467988,
+        "abaixo45_max": 0.0011946050096339113
+      },
+      "paragrafo": {
+        "pior": 1.1842910496799564,
+        "abaixo45_max": 0.7397851673846998
+      }
+    },
+    "print": "prints/celular-fundo.jpg"
+  },
+  {
+    "perfil": "celular",
+    "versao": "botao",
+    "status": "C · efeito só no botão",
+    "fps": 60.1,
+    "cpu": 16.2,
+    "contraste": {
+      "titulo": {
+        "pior": 11.553935523781535,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 5.68470584446488,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/celular-botao.jpg"
+  },
+  {
+    "perfil": "celular",
+    "versao": "css",
+    "status": "D · brilho no botão só com CSS",
+    "fps": 60.1,
+    "cpu": 13.1,
+    "contraste": {
+      "titulo": {
+        "pior": 11.553935523781535,
+        "abaixo45_max": 0
+      },
+      "paragrafo": {
+        "pior": 5.68470584446488,
+        "abaixo45_max": 0
+      }
+    },
+    "print": "prints/celular-css.jpg"
+  }
+]

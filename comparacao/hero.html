@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- Teste com e sem efeito: a mesma hero do guia em 3 versões.
+     ?v=sem    → sem efeito (gradiente CSS parado, como o guia hoje)
+     ?v=fundo  → MeshGradient + FilmGrain em tela cheia, atrás do texto
+     ?v=botao  → mesmo efeito só numa área pequena atrás do botão principal
+     ?v=css    → brilho pulsando no botão principal, só CSS (sem WebGPU) -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teste de efeito — hero</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0c0c10; --bg2:#14141b; --line:#272730; --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; color-scheme:dark; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1{font-family:Sora,sans-serif;line-height:1.1;margin:0;font-size:clamp(2.1rem,5.4vw,3.8rem);letter-spacing:-.03em;font-weight:800}
+  .amb{color:var(--amb)}
+  .chip{display:inline-block;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  .hero{position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center;border-bottom:1px solid var(--line)}
+  .hero .glow{position:absolute;inset:-20% -10% auto auto;width:70%;height:90%;background:radial-gradient(closest-side,rgba(226,162,59,.22),transparent);pointer-events:none}
+  .hero canvas.bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .wrap{position:relative;max-width:1160px;margin:0 auto;padding:60px 22px;width:100%}
+  .lead{color:var(--mut);font-size:1.12rem;max-width:62ch;margin:18px 0 28px}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btn{position:relative;display:inline-block;background:var(--amb);color:#1a1206;font-weight:600;padding:.75em 1.2em;border-radius:10px;font-family:Sora;text-decoration:none;z-index:1}
+  .btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+  .halo{position:relative;display:inline-block}
+  .halo canvas{position:absolute;left:-28px;top:-22px;width:calc(100% + 56px);height:calc(100% + 44px);border-radius:22px;
+    -webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent);pointer-events:none}
+  .tag{position:absolute;right:14px;bottom:12px;font:12px/1 Sora;color:var(--mut);letter-spacing:.08em;text-transform:uppercase}
+  .css .btn:first-child{animation:pulso 2.4s ease-in-out infinite}
+  @keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(226,162,59,.0),0 0 18px 2px rgba(226,162,59,.25)}50%{box-shadow:0 0 0 6px rgba(226,162,59,.18),0 0 34px 8px rgba(226,162,59,.45)}}
+  @media (prefers-reduced-motion: reduce){ .halo canvas{display:none} .css .btn:first-child{animation:none} }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="glow" id="glow"></div>
+  <div class="wrap">
+    <span class="chip">Guia INEMA · biblioteca grátis (MIT)</span>
+    <h1 style="margin-top:12px">Seu site com efeitos de <span class="amb">cinema</span></h1>
+    <p class="lead">Mais de 200 efeitos visuais WebGPU prontos como componentes para React, Vue, Svelte, Solid e JavaScript puro. Você escolhe o efeito, cola o componente e ajusta as cores da sua marca.</p>
+    <div class="cta">
+      <span class="halo" id="halo"><a class="btn" href="#guia" id="principal">Começar o guia</a></span>
+      <a class="btn ghost" href="#demo">Ver a demo ao vivo</a>
+    </div>
+  </div>
+  <span class="tag" id="tag"></span>
+</header>
+<script type="module">
+  const v = new URLSearchParams(location.search).get('v') || 'sem';
+  const tag = document.getElementById('tag');
+  tag.textContent = { sem:'A · sem efeito', fundo:'B · efeito atrás do texto', botao:'C · efeito só no botão', css:'D · brilho no botão só com CSS' }[v];
+  if (v === 'css') document.getElementById('halo').classList.add('css');
+  window.__pronto = false;
+  const CDN = 'https://cdn.jsdelivr.net/npm/shaders@4.0.4/dist/js/bundle.js';
+  const MALHA = [
+    { type:'MeshGradient', props:{ stops:[{color:'#0c0c10',position:0},{color:'#3a2710',position:0.4},{color:'#E2A23B',position:0.75},{color:'#f0c070',position:1}] } },
+    { type:'FilmGrain' }
+  ];
+  async function iniciar(cv){
+    if (!('gpu' in navigator)) { tag.textContent += ' · sem WebGPU'; return; }
+    const lib = await import(CDN);
+    const inst = await lib.createShader(cv, { components: MALHA }, { disableTelemetry:true });
+    const why = inst.getFailureReason && inst.getFailureReason();
+    if (why) tag.textContent += ' · falhou: ' + why;
+    window.__inst = inst;
+  }
+  try {
+    if (v === 'fundo') {
+      document.getElementById('glow').remove();
+      const cv = document.createElement('canvas'); cv.className = 'bg';
+      document.querySelector('.hero').prepend(cv);
+      await iniciar(cv);
+    } else if (v === 'botao') {
+      const cv = document.createElement('canvas');
+      document.getElementById('halo').prepend(cv);
+      await iniciar(cv);
+    }
+  } catch (e) { tag.textContent += ' · erro: ' + e.message; }
+  window.__pronto = true;
+</script>
+</body>
+</html>

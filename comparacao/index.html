@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!-- Relatório do teste com e sem efeito (19/10/2026). Dados em resultados.json; refazer com: node comparacao/medir.mjs -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Efeito ajuda ou atrapalha? — teste com e sem efeito</title>
+<meta name="description" content="A mesma abertura de site em 4 versões: sem efeito, efeito atrás do texto, efeito só no botão e brilho em CSS. Contraste do texto no pior quadro e consumo de CPU medidos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730; --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; --ok:#4ade80; --bad:#f87171; color-scheme:dark; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Sora,sans-serif;line-height:1.15;margin:0}
+  a{color:var(--amb)}
+  code{font-family:"JetBrains Mono",monospace;font-size:.9em;background:var(--bg2);padding:.1em .35em;border-radius:6px}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .chip{display:inline-block;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  header{padding:64px 0 36px;border-bottom:1px solid var(--line)}
+  header h1{font-size:clamp(2rem,4.6vw,3.2rem);letter-spacing:-.03em;font-weight:800;margin-top:10px}
+  header p{color:var(--mut);max-width:70ch;font-size:1.08rem}
+  section{padding:44px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:1.6rem;margin-bottom:12px}
+  p.t{max-width:72ch}
+  .veredito{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:20px}
+  .v{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .v h3{font-size:1.05rem;margin-bottom:6px}
+  .v .r{font:600 .75rem Sora;letter-spacing:.12em;text-transform:uppercase}
+  .r.ok{color:var(--ok)} .r.bad{color:var(--bad)} .r.mid{color:var(--amb)}
+  .v p{margin:6px 0 0;color:var(--mut);font-size:.95rem}
+  .grade{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:18px}
+  .grade.cel{grid-template-columns:repeat(4,1fr)}
+  figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  figure img{display:block;width:100%;height:auto}
+  figcaption{padding:10px 14px;font-size:.92rem;color:var(--mut)}
+  figcaption b{color:var(--txt);font-family:Sora}
+  .tabela{overflow-x:auto;margin-top:18px;border:1px solid var(--line);border-radius:14px}
+  table{border-collapse:collapse;width:100%;min-width:720px;font-size:.95rem}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font:600 .78rem Sora;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);background:var(--bg2)}
+  td.num{font-variant-numeric:tabular-nums}
+  .ruim{color:var(--bad);font-weight:600} .bom{color:var(--ok);font-weight:600}
+  ul.lim{max-width:74ch;padding-left:1.2em} ul.lim li{margin:6px 0}
+  footer{padding:30px 0 50px;color:var(--mut);font-size:.9rem}
+  @media(max-width:760px){ .grade{grid-template-columns:1fr} .grade.cel{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="chip">Teste · guia Shaders · 19/10/2026</span>
+    <h1>O efeito ajuda ou atrapalha?</h1>
+    <p>Pegamos a mesma abertura de site e mudamos só uma coisa: onde fica o efeito. Medimos se o texto continua legível no pior quadro da animação e quanto o efeito gasta do computador.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Resultado em uma frase</h2>
+    <p class="t">Efeito atrás do texto deixou a abertura mais vistosa e o parágrafo ilegível. Efeito no botão manteve o texto igual à versão sem efeito e chamou o olho para o clique, mas o WebGPU gasta tanto quanto a tela cheia. O mesmo destaque feito só com CSS custa menos.</p>
+    <div class="veredito">
+      <div class="v"><span class="r ok">Bom para ler</span><h3>A · sem efeito</h3><p>Texto com folga de contraste e quase nenhum gasto de CPU. Nada aponta o próximo passo além da cor do botão.</p></div>
+      <div class="v"><span class="r bad">Reprovado</span><h3>B · efeito atrás do texto</h3><p>Em algum momento da animação, 100% do fundo do parágrafo fica abaixo do contraste mínimo (4,5:1). No pior quadro, o cinza do texto e o amarelo do fundo quase se igualam (1,0:1).</p></div>
+      <div class="v"><span class="r mid">Funciona, mas caro</span><h3>C · efeito só no botão</h3><p>O texto fica igual ao da versão A e o brilho leva o olho ao "Começar o guia". Só que, para iluminar um botão, o WebGPU gastou tanto quanto na tela cheia.</p></div>
+      <div class="v"><span class="r ok">Melhor equilíbrio</span><h3>D · brilho no botão em CSS</h3><p>Mesmo destaque no botão, com o texto igual ao da versão A, sem baixar 2,5 MB de biblioteca e com metade da CPU da C no computador comum e no fraco.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>As 4 versões no computador</h2>
+    <p class="t">Tela 1440×900. O print é um quadro da animação; nas versões B e C o fundo se mexe o tempo todo.</p>
+    <div class="grade">
+      <figure><img src="prints/desktop-sem.jpg" alt="Versão A: fundo escuro parado, texto legível, botão amarelo" loading="lazy"><figcaption><b>A · sem efeito.</b> O brilho é um gradiente CSS parado, como no guia hoje.</figcaption></figure>
+      <figure><img src="prints/desktop-fundo.jpg" alt="Versão B: malha amarela animada atrás do texto; o parágrafo cinza some sobre o amarelo" loading="lazy"><figcaption><b>B · efeito atrás do texto.</b> MeshGradient + FilmGrain em tela cheia. O parágrafo some sobre o amarelo.</figcaption></figure>
+      <figure><img src="prints/desktop-botao.jpg" alt="Versão C: fundo escuro, com uma mancha de luz amarela animada atrás do botão principal" loading="lazy"><figcaption><b>C · efeito só no botão.</b> O mesmo shader numa área pequena atrás do botão principal.</figcaption></figure>
+      <figure><img src="prints/desktop-css.jpg" alt="Versão D: fundo escuro, botão principal com brilho amarelo em volta" loading="lazy"><figcaption><b>D · brilho em CSS.</b> Sombra amarela pulsando a cada 2,4 s, sem WebGPU.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>No celular</h2>
+    <p class="t">Tela 390×844, a do iPhone 14. Aqui o texto ocupa mais da tela, e na versão B o parágrafo continua sumindo no amarelo.</p>
+    <div class="grade cel">
+      <figure><img src="prints/celular-sem.jpg" alt="Celular, versão A" loading="lazy"><figcaption><b>A</b> · sem efeito</figcaption></figure>
+      <figure><img src="prints/celular-fundo.jpg" alt="Celular, versão B: fundo amarelo animado atrás do parágrafo" loading="lazy"><figcaption><b>B</b> · atrás do texto</figcaption></figure>
+      <figure><img src="prints/celular-botao.jpg" alt="Celular, versão C" loading="lazy"><figcaption><b>C</b> · só no botão</figcaption></figure>
+      <figure><img src="prints/celular-css.jpg" alt="Celular, versão D" loading="lazy"><figcaption><b>D</b> · brilho CSS</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Os números</h2>
+    <p class="t"><b>Contraste no pior quadro:</b> escondemos o texto, fotografamos o fundo atrás dele em 10 momentos da animação e calculamos o contraste de cada pixel com a cor do texto. A tabela mostra o pior valor encontrado. O mínimo recomendado (WCAG AA) é 4,5:1 para o parágrafo e 3:1 para o título grande.</p>
+    <p class="t"><b>CPU:</b> tempo que a página ocupou o processador durante 5 s. Todas as versões ficaram em 60 quadros por segundo nesta máquina.</p>
+    <div class="tabela"><table id="tab">
+      <thead><tr><th>Aparelho</th><th>Versão</th><th>Título (pior)</th><th>Parágrafo (pior)</th><th>Parágrafo abaixo de 4,5:1</th><th>CPU</th><th>Quadros/s</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>O que isso responde</h2>
+    <p class="t"><b>"O efeito ajuda a perceber a próxima ação ou compete com o texto?"</b> Depende de onde ele fica. Atrás do texto, ele compete e perde: o parágrafo fica ilegível em parte da animação. Perto do botão, ele indica a ação sem tocar na leitura.</p>
+    <p class="t"><b>"Algum exemplo melhora compreensão e aparência ao mesmo tempo?"</b> Nesta abertura, o destaque no botão (C ou D) melhora as duas coisas: a página fica mais viva e mostra onde clicar, com o texto tão legível quanto na versão sem efeito. Como o destaque é pequeno, o CSS resolve; o WebGPU vale a pena quando o efeito é o próprio assunto, como na demo ao vivo do guia.</p>
+    <p class="t"><b>Regra prática:</b> nada animado atrás de parágrafo. Se o efeito precisar ficar atrás do texto, ponha uma camada escura entre os dois e meça o pior quadro de novo.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Limites do teste</h2>
+    <ul class="lim">
+      <li><b>"Notebook fraco" e "celular" são simulação.</b> Só o processador foi freado 4 vezes; a placa de vídeo continua a desta máquina, que é forte. Num aparelho real, as versões B e C devem pesar mais do que mostra a tabela.</li>
+      <li><b>A CPU varia entre rodadas.</b> Rodamos duas vezes, e o mesmo caso mudou alguns pontos. Leve em conta a ordem (A gasta menos, depois D, e B e C ficam no topo), não o número exato. O gasto da placa de vídeo não foi medido.</li>
+      <li><b>Não houve teste com pessoas.</b> "Leva o olho ao botão" é leitura do print, não mapa de calor nem rastreio de olhar. Para isso, falta um teste rápido com 5 a 10 pessoas.</li>
+      <li><b>Uma abertura e um efeito.</b> Testamos o MeshGradient âmbar do guia. Um efeito mais escuro ou mais lento atrás do texto daria outros números.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Refazer o teste: <code>node comparacao/medir.mjs</code> no repositório <a href="https://github.com/inematds/shaders">inematds/shaders</a>. Página testada: <a href="hero.html?v=sem">A</a> · <a href="hero.html?v=fundo">B</a> · <a href="hero.html?v=botao">C</a> · <a href="hero.html?v=css">D</a>. Dados brutos: <a href="resultados.json">resultados.json</a>. Guia: <a href="../guia/">Shaders</a>.
+  </div>
+</footer>
+<script>
+  const NOMES = { sem:'A · sem efeito', fundo:'B · atrás do texto', botao:'C · só no botão', css:'D · brilho CSS' };
+  const PERF = { desktop:'Computador', fraco:'Notebook fraco (simulado)', celular:'Celular (simulado)' };
+  const f = n => n.toFixed(1).replace('.', ',');
+  fetch('resultados.json').then(r => r.json()).then(rows => {
+    document.querySelector('#tab tbody').innerHTML = rows.map(r => {
+      const t = r.contraste.titulo.pior, p = r.contraste.paragrafo.pior, a = r.contraste.paragrafo.abaixo45_max;
+      return `<tr><td>${PERF[r.perfil]}</td><td>${NOMES[r.versao]}</td>
+        <td class="num ${t < 3 ? 'ruim' : 'bom'}">${f(t)}:1 ${t < 3 ? '· reprova' : '· passa'}</td>
+        <td class="num ${p < 4.5 ? 'ruim' : 'bom'}">${f(p)}:1 ${p < 4.5 ? '· reprova' : '· passa'}</td>
+        <td class="num">${Math.round(a * 100)}%</td>
+        <td class="num">${f(r.cpu)}%</td><td class="num">${Math.round(r.fps)}</td></tr>`;
+    }).join('');
+  }).catch(() => { document.querySelector('#tab tbody').innerHTML = '<tr><td colspan="7">Abra pelo GitHub Pages ou por um servidor local para ver a tabela.</td></tr>'; });
+</script>
+</body>
+</html>
